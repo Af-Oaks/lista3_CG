@@ -29,9 +29,10 @@ extern keyboard_t keyboard;
 // Aspect Ratio
 // MAX_X
 // MAX_Y
-extern float razaoAspecto, prev_wh, prev_ww, max_x, max_y;
+extern float razaoAspecto, prev_wh, prev_ww, max_x, max_y,xMouse,yMouse;
 
 void keyboardFct(unsigned char key, int x, int y);
 void reshapeFct(int width, int height);
 void keyboardSpecial(int key, int x, int y);
+void posicionaCamera(int x, int y);
 #endif

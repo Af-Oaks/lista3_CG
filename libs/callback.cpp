@@ -1,6 +1,6 @@
 #include "callback.h"
 
-float razaoAspecto = 16.0f / 9.0f, prev_wh, prev_ww;
+float razaoAspecto = 16.0f / 9.0f, prev_wh, prev_ww,xMouse=112,yMouse=112;
 float max_x = 0, max_y = 0;
 
 keyboard_t keyboard = {0};
@@ -146,6 +146,11 @@ void keyboardSpecial(int key, int x, int y)
 
 static bool reshaping = 0;
 
+void posicionaCamera(int x, int y) {
+    xMouse = x;
+    yMouse = y;
+}
+
 // Callback para redimensionamento
 void reshapeFct(int width, int height)
 {
@@ -183,10 +188,10 @@ void reshapeFct(int width, int height)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-    max_x = 256 * razaoAspecto;
-    max_y = 224;
+    max_x = 500 * razaoAspecto;
+    max_y = 500;
 
-    glOrtho(-max_x, max_x, -max_y, max_y, -1, 1);
+    glOrtho(-max_x, max_x, -max_y, max_y, -500, 500);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }

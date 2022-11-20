@@ -21,6 +21,8 @@ class Sistema_solar
         std::vector<std::shared_ptr<Astros>> planetas;
         std::shared_ptr<Sol> sol;
         float time;
+        GLint space_texture;
+        GLfloat raio_sistema;
 
     public:
         //construtor
@@ -85,9 +87,15 @@ class Sol{
         // atributos do planeta
         GLfloat raio_Astro;
         GLfloat material;
+        // Propriedades do material da esfera
+        float *matAmb;   // cor ambiente
+        float *matDif;    // cor difusa
+        float *matSpec;   // cor especular
+        float *matshine; // shineeeee
         GLfloat ilum_uniforme;
         GLfloat ilum_difusa;
         GLfloat ilum_especular;
+        GLfloat ilum_shine;
         GLint codigo_textura;
         //atributos em relação a translacao e rotacao do planeta
         // pos0=x||pos1=y||posz=2
@@ -102,11 +110,13 @@ class Sol{
         void set_ilumincao();
         //construtor
         Sol(const char * script);
-
         //metodos
         void atualiza_sol();
         void desenhar_sol();
-
+        float* get_ilumi_dif();
+        float* get_ilumi_amb();
+        float* get_ilumi_spec();
+        float* get_ilumi_shine();
 };
 
 class Luas: Astros{

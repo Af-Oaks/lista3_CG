@@ -5,10 +5,17 @@
 Sistema_solar::Sistema_solar()
 { 
     float time =0.0;
+    space_texture = SOIL_load_OGL_texture("assets/texture/stars_milky_way.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_DDS_LOAD_DIRECT);
+    if (space_texture == 0)
+    {
+        printf("Erro do SOIL space_texture: '%s'\n", SOIL_last_result());
+    }
+    raio_sistema = 500.0;
 
 };
 
-
+//faz atualiza todo mundo de forma recursiva!
+//os planetas que tiverem luas, serao chamados por aqui também
 void Sistema_solar::atualiza_sistema(){
 
     this->sol->atualiza_sol();
@@ -23,12 +30,33 @@ void Sistema_solar::atualiza_sistema(){
 //chama todo mundo dos vetores e o sol para ser desenhada na tela
 void Sistema_solar::desenhar_sistema(){
 
-    this->sol->desenhar_sol();
+    float globAmb[] = { 0.2, 0.2, 0.2, 1.0 };
+    //printf("desenho_sts 01?\n");
+    //printf("desenho_sts 02?\n");
+    //configura sistema de luz global//ver se da para fazer apenas uma vez
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globAmb);        // Luz ambiente global
+    glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, false); // habilita local view
 
+    // Limpa a tela e o z-buffer
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glLoadIdentity();
+    //printf("desenho_sts 03?\n");
+    // Posiciona a câmera de acordo com posição x,y do mouse na janela
+    gluLookAt(1*(xMouse-prev_wh/2)/(prev_ww/16), -1*(yMouse-prev_wh/2)/(prev_ww/16) + 3, 5,
+              0, 0, 0,
+              0, 1, 0);
+
+    //agora desenhar os pontos de luzes
+    //printf("desenho_sts 04?\n");
+    this->sol->desenhar_sol();
+    // Desabilita iluminação para desenhar os planetas(nao emitem luz!)
+    //printf("desenho_sts 05?\n");
     for(auto  i: planetas){
 
         i->desenhar_Astro();
     }
+    //printf("desenho_sts 06?\n");
 
 
 }
@@ -85,6 +113,7 @@ Astros::Astros(const char * script){
     }
 
 }
+
 Astros::Astros(inf_astros info_astro){
     
     this->codigo_textura =info_astro.codigo_textura;
@@ -125,6 +154,35 @@ Luas::Luas(inf_astros inf_lua) :Astros(inf_lua){
 
 //Classe Sol
 Sol::Sol(const char * script){
+
+    ilum_difusa=1.0;
+    ilum_especular=1.0;
+    ilum_shine=30.0;
+    ilum_uniforme=1.0;
+    // Propriedades do material da esfera
+    float carryAmb[] = {1.0, 1.0, 0.0, ilum_uniforme};    // cor ambiente : amarela
+    float carrySpec[]= { 1.0, 1.0, 0.0,  ilum_especular }; //cor difusa: amarela
+    float carryDif[] = {1.0, 1.0, 0.0, ilum_difusa};       // cor especular: amarela
+    float carryshine[] = { ilum_shine }; 
+
+    matAmb = carryAmb;  // jogando para dentro do array do sol
+    matSpec = carrySpec; // jogando para dentro do array do sol
+    matDif =  carryDif;  // jogando para dentro do array do sol
+    matshine =  carryshine;  // jogando para dentro do array do sol
+
+    // Propriedades da fonte de luz LIGHT0
+    glLightfv(GL_LIGHT0, GL_AMBIENT, matAmb);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, matDif);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, matSpec);
+
+    // Definindo as propriedades do material
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, matDif);
+    glMaterialfv(GL_FRONT, GL_AMBIENT, matAmb);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, matSpec);
+    glMaterialfv(GL_FRONT, GL_SHININESS, matshine);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
    //struct de informações para carregar os atributos do Astro
     inf_astros aux={0};
     int num=0;
@@ -136,9 +194,13 @@ Sol::Sol(const char * script){
     this->material = aux.material;
     this->raio_Astro = aux.raio_Astro;
     this->vec_velo =aux.vec_velo;
-    //      pos_x,                            pos_y,                                 pos_z
-    this->vec_pos.push_back(0.0);this->vec_pos.push_back(0.0);this->vec_pos.push_back(0.0);
-
+    this->vec_angulo.push_back(0.0);
+    this->vec_angulo.push_back(0.0);
+    //vetor posicao
+    this->vec_pos.push_back(0.0);//pos_x
+    this->vec_pos.push_back(0.0);//pos_y
+    this->vec_pos.push_back(0.0);//pos_z
+    this->vec_pos.push_back(1.0);//luz é posicional
 }
 
 void Sol::set_ilumincao(){
@@ -148,29 +210,89 @@ void Sol::set_ilumincao(){
     //diminui  luz uniforme
     if(keyboard.x && ilum_uniforme>=0.0)
         ilum_uniforme-=0.0001*(float)keyboard.z;
-   
     //aumenta luz difusa
     if(keyboard.c && ilum_difusa<=1.0)
         ilum_difusa+=0.0001*(float)keyboard.c;
     //diminui  luz difusa
     if(keyboard.v && ilum_difusa>=0.0)
         ilum_difusa-=0.0001*(float)keyboard.v;
-
     //aumenta luz especular
     if(keyboard.b && ilum_especular<=1.0)
         ilum_especular+=0.0001*(float)keyboard.b;
-
     //diminui luz especular
     if(keyboard.b && ilum_especular>=0.0)
         ilum_especular-=0.0001*(float)keyboard.n;
+
+    //atulizando os vetores agora;
+    matAmb[4] = ilum_uniforme;  // jogando para dentro do array do sol
+    matSpec[4] = ilum_especular; // jogando para dentro do array do sol
+    matDif[4] =  ilum_difusa;  // jogando para dentro do array do sol
+    matshine[4] =  ilum_shine;  // jogando para dentro do array do sol   
+
+
 }
+
 void Sol::atualiza_sol(){
 
 
 }
 void Sol::desenhar_sol(){
 
+    //botando iluminação
+    //printf("errro luza?\n");
+    // Propriedades da fonte de luz LIGHT0
+    glLightfv(GL_LIGHT0, GL_AMBIENT, matAmb);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, matDif);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, matSpec);
+
+    glEnable(GL_LIGHT0);
+    //printf("errro luzb?\n");
+    //printf("errro luzc?\n");
+    glPushMatrix();
+        glRotatef(vec_angulo[1], 1.0, 0.0, 0.0); // Rotação no eixo x
+        glRotatef(vec_angulo[1], 0.0, 1.0, 0.0); // Rotação no eixo y
+        //printf("errro luz0?\n");
+        glLightfv(GL_LIGHT0, GL_POSITION, vec_pos.data());
+        //printf("errro luz1?\n");
+        glTranslatef(vec_pos[0], vec_pos[1], vec_pos[2]);
+        glColor3f(1.0, 1.0, 0.0); // coutinho???? usar color??? para luz???
+    glPopMatrix();
     
+    //desenhando a esfera
+    // Define (atualiza) o valor do expoente de especularidade
+    glMaterialfv(GL_FRONT, GL_SHININESS, matshine);
+    glColor3f(1, 1, 1);// color dnv coutinho??
+
+    // Desenha a esfera grande e bem arredondada
+    glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, codigo_textura);  
+    glPushMatrix();
+        glRotatef(vec_angulo[1], 0, 1, 0);
+        glRotatef(90, 1, 0, 0);
+        solidSphere(raio_Astro, 160, 160);
+        // glutSolidSphere(1.5, esferaLados, esferaLados);
+        // glutSolidCube(1.5);
+        // glutSolidTeapot(1.5);
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+    printf("errro espehera?2?\n");
+}
+
+float* Sol::get_ilumi_amb(){
+
+    return matAmb;
+}
+float* Sol::get_ilumi_dif(){
+
+    return matDif;
+}
+float* Sol::get_ilumi_spec(){
+
+    return matSpec;
+}
+float* Sol::get_ilumi_shine(){
+
+    return matshine;
 }
 
 //----------------------------------------------------------------------------//

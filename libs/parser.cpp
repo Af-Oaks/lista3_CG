@@ -36,21 +36,21 @@ int parse_model(inf_astros *aux, const char *file_name,int *num_luas)
         printf("arquivo vazio!\n");
         goto ERROR;}
         
-    printf("%s  M01\n",input_str);
+    //printf("%s  M01\n",input_str);
     // Lê o modelo do arquivo
     while (file->peek() != EOF)
     {
         file->getline(input_str, 100);
-        printf("%s  M02\n",input_str);
+        //printf("%s  M02\n",input_str);
         sscanf(input_str, "%f,%f,%f,%f,%f", &aux->raio_Astro_ao_sol,&aux->material,&aux->raio_Astro,&carry1,&carry2);
         aux->vec_velo.push_back(carry1);
         aux->vec_velo.push_back(carry2);
         file->getline(input_str, 100);
-        printf("%s  M03\n",input_str);
+        //printf("%s  M03\n",input_str);
         sscanf(input_str, "%s", nome_textura);  
         std::string input_caminho("assets/texture/");
         input_caminho.append(input_str);
-        printf("name_t = %s\n",input_caminho.c_str());
+        //printf("name_t = %s\n",input_caminho.c_str());
         // Carrega a textura usando a soil
         GLuint idTextura = SOIL_load_OGL_texture(input_caminho.c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_DDS_LOAD_DIRECT);
 
@@ -66,12 +66,12 @@ int parse_model(inf_astros *aux, const char *file_name,int *num_luas)
         
      //pula para proxima linha que vai ter a quantia de luas
     file->getline(input_str, 100);
-    printf("%s  M04\n",input_str);
+    //printf("%s  M04\n",input_str);
     sscanf(input_str,"%d",num_luas);
 
     //tenta pegar mais uma linha para ter zerteza que chego no EOF!
     file->getline(input_str, 100);
-    printf("%s  M05\n",input_str);
+    //printf("%s  M05\n",input_str);
     
         
     }
@@ -137,6 +137,7 @@ int parse_lua(std::vector<inf_astros> *aux,const char *file_name,int num_luas){
         input_caminho.clear();
         input_caminho.append("assets/texture/");
         input_caminho.append(input_str);
+        printf("name_t = %s\n",input_caminho.c_str());
 
         // Carrega a textura usando a soil
         GLuint idTextura = SOIL_load_OGL_texture(input_caminho.c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_DDS_LOAD_DIRECT);
@@ -151,8 +152,9 @@ int parse_lua(std::vector<inf_astros> *aux,const char *file_name,int num_luas){
             luas.codigo_textura = idTextura;
         }
 
+        printf("errro pushback?\n");
         aux->push_back(luas);
-        
+        printf("errro pushback2?\n");
     }   
 
     #if DEBUG

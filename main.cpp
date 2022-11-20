@@ -24,11 +24,11 @@ void drawUpdate()
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //o que tive de textura será habilitado aqui
 	glEnable(GL_TEXTURE_2D);
-        //desenha tudo em sistema de recurssao
-        planetario->desenhar_sistema();
+    //desenha tudo em sistema de recurssao
+    planetario->desenhar_sistema();
+    //desabilita as texturas para não interferir nos proximos ciclos
 	glDisable(GL_TEXTURE_2D);
 
     glutSwapBuffers();
@@ -50,11 +50,23 @@ void onTimeUpdate(int time)
 void configGlut()
 {
     // Configura a janela da GLUT
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(600, 600 * 1/razaoAspecto);
-
     glutInitWindowPosition(0, 0);
     glutCreateWindow("Solar System");
+
+    //atulizando o a cord do background
+    glClearColor(0,0,0, 0.0);
+    glEnable(GL_DEPTH_TEST);  // Ativa teste Z
+
+
+
+    // Não mostrar faces do lado de dentro
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
+    // Esconder o ponteiro do mouse quando dentro da janela
+    glutSetCursor(GLUT_CURSOR_NONE);
 
     // Configura os callbacks da GLUT
     glutDisplayFunc(drawUpdate);
@@ -63,21 +75,15 @@ void configGlut()
     glutKeyboardUpFunc(keyboardFct);
     glutSpecialFunc(keyboardSpecial);
     glutSpecialUpFunc(keyboardSpecial);
-
-    glutTimerFunc(16, onTimeUpdate, 16);
-
-    glLineWidth(8);
-    glClearColor(1, 1, 1, 1);
-
+    glutPassiveMotionFunc(posicionaCamera);
     // Ignora repetições de teclas e verifica apenas o pressionamento e qnd soltar
     glutIgnoreKeyRepeat(1);
+    //configura para ser chamada a cada 16ms=60frames/sec
+    glutTimerFunc(16, onTimeUpdate, 16);
 }
 
 //usar a taxa de variacao de posicao dos pontos do mouse para rotacionar o plauyer lookat
 //w a s d para mexer as posicoes da glFrustum ou glperspective(melhor perspective)
-//
-
-
 
 int main(int argc, char **argv)
 {
