@@ -2,6 +2,7 @@
 #define __PHYSICS__
 #include <iostream>
 #include <vector>
+#include <cmath>
 #include <memory>
 #include <cstring>
 #include <GL/freeglut.h>

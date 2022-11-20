@@ -12,6 +12,16 @@ Sistema_solar::Sistema_solar()
     }
     raio_sistema = 500.0;
 
+    // paramentros de inicialização do desenho
+    float globAmb[] = { 0.2, 0.2, 0.2, 1.0 };
+    //printf("desenho_sts 01?\n");
+    //printf("desenho_sts 02?\n");
+    //configura sistema de luz global//ver se da para fazer apenas uma vez
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globAmb);        // Luz ambiente global
+    glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);  
+    glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, false); // habilita local view
+    glEnable(GL_COLOR_MATERIAL); 
+
 };
 
 //faz atualiza todo mundo de forma recursiva!
@@ -30,12 +40,6 @@ void Sistema_solar::atualiza_sistema(){
 //chama todo mundo dos vetores e o sol para ser desenhada na tela
 void Sistema_solar::desenhar_sistema(){
 
-    float globAmb[] = { 0.2, 0.2, 0.2, 1.0 };
-    //printf("desenho_sts 01?\n");
-    //printf("desenho_sts 02?\n");
-    //configura sistema de luz global//ver se da para fazer apenas uma vez
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globAmb);        // Luz ambiente global
-    glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, true); // habilita local view
 
     // Limpa a tela e o z-buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -49,11 +53,13 @@ void Sistema_solar::desenhar_sistema(){
 
     //agora desenhar os pontos de luzes
     //printf("desenho_sts 04?\n");
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
     this->sol->desenhar_sol();
     // Desabilita iluminação para desenhar os planetas(nao emitem luz!)
     //printf("desenho_sts 05?\n");
 
-    glEnable(GL_LIGHTING);
+
     for(auto  i: planetas){
 
         i->desenhar_Astro();
@@ -148,6 +154,10 @@ void Astros::atualiza_posicao(){
 
     //atualizar via cordenadas polares
 
+    vec_pos[0]=raio_Astro_ao_sol*cos(vec_angulo[0]);
+    vec_pos[2]=raio_Astro_ao_sol*sin(vec_angulo[0]);
+    
+
     //atualizar cada uma de suas luas
     for(auto i: luas){
 
@@ -223,9 +233,12 @@ void Luas::atualiza_lua(std::vector<GLfloat> astro_ref){
         vec_angulo[1]=0.0;
 
     if(vec_angulo[0]<360.0)//rotacao em relação ao seu astro
-        vec_angulo[0]+=0.03;
+        vec_angulo[0]+=0.06;
     else
         vec_angulo[0]=0.0;
+
+    vec_pos[0]=astro_ref[0] + raio_Astro_ao_sol*cos(vec_angulo[0]);
+    vec_pos[2]=astro_ref[2] + raio_Astro_ao_sol*sin(vec_angulo[0]);
 
     //atualizar via cordenadas polares
 
@@ -354,24 +367,22 @@ void Sol::desenhar_sol(){
     glLightfv(GL_LIGHT0, GL_AMBIENT, matAmb);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, matDif);
     glLightfv(GL_LIGHT0, GL_SPECULAR, matSpec);
-
-    glEnable(GL_LIGHT0);
     //printf("errro luzb?\n");
     //printf("errro luzc?\n");
     glPushMatrix();
+        //glColor3f(1, 1, 1);// color dnv coutinho??
         glRotatef(vec_angulo[1], 1.0, 0.0, 0.0); // Rotação no eixo x
         glRotatef(vec_angulo[0], 0.0, 1.0, 0.0); // Rotação no eixo y
         //printf("errro luz0?\n");
         glLightfv(GL_LIGHT0, GL_POSITION, vec_pos.data());
         //printf("errro luz1?\n");
         glTranslatef(vec_pos[0], vec_pos[1], vec_pos[2]);
-        //glColor3f(1.0, 1.0, 1.0); // coutinho???? usar color??? para luz???
+        glColor3f(1.0, 1.0, 1.0); // coutinho???? usar color??? para luz???
     glPopMatrix();
     
     //desenhando a esfera
     // Define (atualiza) o valor do expoente de especularidade
-    glMaterialfv(GL_FRONT, GL_SHININESS, matshine);
-    //glColor3f(1, 1, 1);// color dnv coutinho??
+    //glMaterialfv(GL_FRONT, GL_SHININESS, matshine);
 
     // Desenha a esfera grande e bem arredondada
     glEnable(GL_TEXTURE_2D);
@@ -380,9 +391,6 @@ void Sol::desenhar_sol(){
         glRotatef(vec_angulo[1], 0, 1, 0);
         glRotatef(90, 1, 0, 0);
         solidSphere(raio_Astro, 160, 160);
-        // glutSolidSphere(1.5, esferaLados, esferaLados);
-        // glutSolidCube(1.5);
-        // glutSolidTeapot(1.5);
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
     //glDisable(GL_LIGHT0);
