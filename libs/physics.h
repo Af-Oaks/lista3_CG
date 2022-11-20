@@ -130,5 +130,6 @@ class Luas: public Astros{
 
 //inspirado no codigo do coutinho KEKW
 void solidSphere(int radius, int stacks, int columns);
+void solidSphere_inside(int radius, int stacks, int columns);
 
 #endif

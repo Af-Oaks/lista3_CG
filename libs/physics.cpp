@@ -10,7 +10,7 @@ Sistema_solar::Sistema_solar()
     {
         printf("Erro do SOIL space_texture: '%s'\n", SOIL_last_result());
     }
-    raio_sistema = 500.0;
+    raio_sistema = 1500.0;
 
     // paramentros de inicialização do desenho
     float globAmb[] = { 0.2, 0.2, 0.2, 1.0 };
@@ -53,9 +53,9 @@ void Sistema_solar::desenhar_sistema(){
 
     //agora desenhar os pontos de luzes
     //printf("desenho_sts 04?\n");
-    glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     this->sol->desenhar_sol();
+    glEnable(GL_LIGHTING);
     // Desabilita iluminação para desenhar os planetas(nao emitem luz!)
     //printf("desenho_sts 05?\n");
 
@@ -66,6 +66,17 @@ void Sistema_solar::desenhar_sistema(){
         //printf("desenho_sts dentro?\n");
     }
     glDisable(GL_LIGHTING);
+
+    // desenhando o background
+    // Desenha a esfera grande e bem arredondada
+    glEnable(GL_TEXTURE_2D);
+    glPushMatrix();
+        glLoadIdentity(); 
+        solidSphere_inside(raio_sistema, 160, 160);
+        glBindTexture(GL_TEXTURE_2D, space_texture); 
+        glColor3f(1,1,1);
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
     //printf("desenho_sts 06?\n");
 
 
@@ -405,6 +416,25 @@ void solidSphere(int radius, int stacks, int columns)
     GLUquadric* quadObj = gluNewQuadric();
     // estilo preenchido... poderia ser GLU_LINE, GLU_SILHOUETTE
     // ou GLU_POINT
+    gluQuadricDrawStyle(quadObj, GLU_FILL);
+    // chama 01 glNormal para cada vértice.. poderia ser
+    // GLU_FLAT (01 por face) ou GLU_NONE
+    gluQuadricNormals(quadObj, GLU_SMOOTH);
+    // chama 01 glTexCoord por vértice
+    gluQuadricTexture(quadObj, GL_TRUE);
+    // cria os vértices de uma esfera
+    gluSphere(quadObj, radius, stacks, columns);
+    // limpa as variáveis que a GLU usou para criar
+    // a esfera
+    gluDeleteQuadric(quadObj);
+}
+void solidSphere_inside(int radius, int stacks, int columns)
+{
+    // cria uma quádrica
+    GLUquadric* quadObj = gluNewQuadric();
+    // estilo preenchido... poderia ser GLU_LINE, GLU_SILHOUETTE
+    // ou GLU_POINT
+    gluQuadricOrientation(quadObj,GLU_OUTSIDE);
     gluQuadricDrawStyle(quadObj, GLU_FILL);
     // chama 01 glNormal para cada vértice.. poderia ser
     // GLU_FLAT (01 por face) ou GLU_NONE
