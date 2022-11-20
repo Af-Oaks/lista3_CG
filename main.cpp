@@ -22,7 +22,7 @@ void init_sistemaSolar(){
 void drawUpdate()
 {
 
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //o que tive de textura será habilitado aqui
     //desenha tudo em sistema de recurssao
@@ -85,17 +85,18 @@ void configGlut()
 
 int main(int argc, char **argv)
 {
-    
+
+    glewInit();    
 
     glutInit(&argc, argv);
 
     configGlut();
 
-    glewInit();
     //inicializa o sistema solar
     init_sistemaSolar();
 
     glutDisplayFunc(drawUpdate);
+    
     glutMainLoop();
 
 }

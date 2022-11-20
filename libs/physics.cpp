@@ -19,7 +19,7 @@ Sistema_solar::Sistema_solar()
 void Sistema_solar::atualiza_sistema(){
 
     this->sol->atualiza_sol();
-
+    this->ctrl_ilum_sol();
     for(auto  i: planetas){
 
         i->atualiza_posicao();
@@ -35,7 +35,7 @@ void Sistema_solar::desenhar_sistema(){
     //printf("desenho_sts 02?\n");
     //configura sistema de luz global//ver se da para fazer apenas uma vez
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globAmb);        // Luz ambiente global
-    glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, false); // habilita local view
+    glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, true); // habilita local view
 
     // Limpa a tela e o z-buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -49,10 +49,11 @@ void Sistema_solar::desenhar_sistema(){
 
     //agora desenhar os pontos de luzes
     //printf("desenho_sts 04?\n");
-    glEnable(GL_LIGHTING);
     this->sol->desenhar_sol();
     // Desabilita iluminação para desenhar os planetas(nao emitem luz!)
     //printf("desenho_sts 05?\n");
+
+    glEnable(GL_LIGHTING);
     for(auto  i: planetas){
 
         i->desenhar_Astro();
@@ -146,7 +147,6 @@ void Astros::atualiza_posicao(){
         vec_angulo[0]=0.0;
 
     //atualizar via cordenadas polares
-
 
     //atualizar cada uma de suas luas
     for(auto i: luas){
@@ -281,33 +281,49 @@ Sol::Sol(const char * script){
     this->vec_pos.push_back(0.0);//pos_y
     this->vec_pos.push_back(0.0);//pos_z
     this->vec_pos.push_back(1.0);//luz é posicional
+    //printf("amb =%0.1f,Spec =%0.1f, Dif=%0.1f,shine =%0.1f \n",ilum_uniforme,ilum_especular,ilum_difusa,ilum_shine);
 }
 
 void Sol::set_ilumincao(){
     //aumenta luz uniforme
-    if(keyboard.z && ilum_uniforme<=1.0)
+    if(keyboard.z && ilum_uniforme<1.0)
         ilum_uniforme+=0.01*(float)keyboard.z;
     //diminui  luz uniforme
-    if(keyboard.x && ilum_uniforme>=0.0)
-        ilum_uniforme-=0.01*(float)keyboard.z;
+    if(keyboard.x && ilum_uniforme>0.0)
+        ilum_uniforme-=0.01*(float)keyboard.x;
     //aumenta luz difusa
-    if(keyboard.c && ilum_difusa<=1.0)
+    if(keyboard.c && ilum_difusa<1.0)
         ilum_difusa+=0.01*(float)keyboard.c;
     //diminui  luz difusa
-    if(keyboard.v && ilum_difusa>=0.0)
+    if(keyboard.v && ilum_difusa>0.0)
         ilum_difusa-=0.01*(float)keyboard.v;
     //aumenta luz especular
-    if(keyboard.b && ilum_especular<=1.0)
+    if(keyboard.b && ilum_especular<1.0)
         ilum_especular+=0.01*(float)keyboard.b;
     //diminui luz especular
-    if(keyboard.b && ilum_especular>=0.0)
+    if(keyboard.n && ilum_especular>0.0)
         ilum_especular-=0.01*(float)keyboard.n;
 
-    //atulizando os vetores agora;
-    matAmb[4] = ilum_uniforme;  // jogando para dentro do array do sol
-    matSpec[4] = ilum_especular; // jogando para dentro do array do sol
-    matDif[4] =  ilum_difusa;  // jogando para dentro do array do sol
-    matshine[4] =  ilum_shine;  // jogando para dentro do array do sol   
+    //aumenta luz shine
+    if(keyboard.w && ilum_shine<100.0)
+        ilum_shine+=1.0*(float)keyboard.w;
+    //diminui luz shine
+    if(keyboard.a && ilum_shine>0.0)
+        ilum_shine-=1.0*(float)keyboard.a;
+
+
+    // Propriedades do material da esfera
+    float carryAmb[] = {1.0, 1.0, 1.0, ilum_uniforme};    // cor ambiente : amarela
+    float carrySpec[]= { 1.0, 1.0, 1.0,  ilum_especular }; //cor difusa: amarela
+    float carryDif[] = {1.0, 1.0, 1.0, ilum_difusa};       // cor especular: amarela
+    float carryshine[] = { ilum_shine }; 
+
+    matAmb = carryAmb;  // jogando para dentro do array do sol
+    matSpec = carrySpec; // jogando para dentro do array do sol
+    matDif =  carryDif;  // jogando para dentro do array do sol
+    matshine =  carryshine;  // jogando para dentro do array do sol
+
+    printf("amb =%0.1f,Spec =%0.1f, Dif=%0.1f,shine =%0.1f \n",ilum_uniforme,ilum_especular,ilum_difusa,ilum_shine);
 
 
 }
@@ -333,6 +349,8 @@ void Sol::desenhar_sol(){
     //botando iluminação
     //printf("errro luza?\n");
     // Propriedades da fonte de luz LIGHT0
+
+    // O ERRRO TA EM UMA DESSAS 3 CORDENADAS
     glLightfv(GL_LIGHT0, GL_AMBIENT, matAmb);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, matDif);
     glLightfv(GL_LIGHT0, GL_SPECULAR, matSpec);
@@ -347,7 +365,7 @@ void Sol::desenhar_sol(){
         glLightfv(GL_LIGHT0, GL_POSITION, vec_pos.data());
         //printf("errro luz1?\n");
         glTranslatef(vec_pos[0], vec_pos[1], vec_pos[2]);
-        //glColor3f(1.0, 1.0, 0.0); // coutinho???? usar color??? para luz???
+        //glColor3f(1.0, 1.0, 1.0); // coutinho???? usar color??? para luz???
     glPopMatrix();
     
     //desenhando a esfera
@@ -367,7 +385,7 @@ void Sol::desenhar_sol(){
         // glutSolidTeapot(1.5);
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
-    glDisable(GL_LIGHT0);
+    //glDisable(GL_LIGHT0);
     //printf("errro espehera?2?\n");
 }
 
