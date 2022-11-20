@@ -3,10 +3,16 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <cstring>
 #include <GL/freeglut.h>
 #include "callback.h"
 #include "parser.h"
 
+
+class Astros;
+class Luas;
+class Sistema_solar;
+class Sol;
 
 class Sistema_solar
 { 
@@ -37,6 +43,7 @@ class Astros{
         GLfloat raio_Astro_ao_sol;
         GLfloat material;
         GLint codigo_textura;
+        int num_luas;
         //atributos em relação a translacao e rotacao do planeta
         // pos0=x||pos1=y||posz=2
         std::vector<GLfloat> vec_pos;
@@ -95,6 +102,8 @@ class Sol{
         void set_ilumincao();
         //construtor
         Sol(const char * script);
+
+        //metodos
         void atualiza_sol();
         void desenhar_sol();
 
@@ -103,6 +112,7 @@ class Sol{
 class Luas: Astros{
 
     public:
+        using Astros::Astros;
     // transladar e rotacionar em reação ao sol
         Luas(inf_astros inf_lua);
 
@@ -110,29 +120,7 @@ class Luas: Astros{
         //
 };
 
-
 //inspirado no codigo do coutinho KEKW
-void solidSphere(int radius, int stacks, int columns)
-{
-    // cria uma quádrica
-    GLUquadric* quadObj = gluNewQuadric();
-    // estilo preenchido... poderia ser GLU_LINE, GLU_SILHOUETTE
-    // ou GLU_POINT
-    gluQuadricDrawStyle(quadObj, GLU_FILL);
-    // chama 01 glNormal para cada vértice.. poderia ser
-    // GLU_FLAT (01 por face) ou GLU_NONE
-    gluQuadricNormals(quadObj, GLU_SMOOTH);
-    // chama 01 glTexCoord por vértice
-    gluQuadricTexture(quadObj, GL_TRUE);
-    // cria os vértices de uma esfera
-    gluSphere(quadObj, radius, stacks, columns);
-    // limpa as variáveis que a GLU usou para criar
-    // a esfera
-    gluDeleteQuadric(quadObj);
-}
-
-
-
-
+void solidSphere(int radius, int stacks, int columns);
 
 #endif

@@ -17,11 +17,9 @@ typedef struct Key
     int space;
     int enter;
     int x;
-
     int z;
     int c;
     int b;
-    int x;
     int v;
     int n;
 } keyboard_t;

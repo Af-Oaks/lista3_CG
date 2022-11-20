@@ -5,6 +5,7 @@
 #include <GL/freeglut.h>
 #include "libs/callback.h"
 #include "libs/physics.h"
+#include "libs/parser.h"
 
 //variaveis globais
 Sistema_solar *planetario;

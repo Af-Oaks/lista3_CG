@@ -14,7 +14,6 @@
 #include <memory>
 #include <GL/freeglut.h>
 #include <SOIL.h>
-#include "physics.h"
 
 typedef struct informacoes_astros{
 
@@ -27,7 +26,10 @@ typedef struct informacoes_astros{
 } inf_astros;
 
 
-int parse_model(informacoes_astros *aux,const char *file_name,std::vector<std::shared_ptr<Luas>> *vec_luas);
+int parse_model(inf_astros *aux,const char *file_name,int *num_luas);
+
+int parse_lua(std::vector<inf_astros> *aux,const char *file_name,int num_luas);
+
 
 
 #endif
