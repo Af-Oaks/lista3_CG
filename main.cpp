@@ -25,11 +25,9 @@ void drawUpdate()
     glClear(GL_COLOR_BUFFER_BIT);
 
     //o que tive de textura será habilitado aqui
-	glEnable(GL_TEXTURE_2D);
     //desenha tudo em sistema de recurssao
     planetario->desenhar_sistema();
     //desabilita as texturas para não interferir nos proximos ciclos
-	glDisable(GL_TEXTURE_2D);
 
     glutSwapBuffers();
 }

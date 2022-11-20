@@ -39,7 +39,7 @@ class Sistema_solar
 
 class Astros{
 
-    private:
+    protected:
         // atributos do planeta
         GLfloat raio_Astro;
         GLfloat raio_Astro_ao_sol;
@@ -113,21 +113,18 @@ class Sol{
         //metodos
         void atualiza_sol();
         void desenhar_sol();
-        float* get_ilumi_dif();
-        float* get_ilumi_amb();
-        float* get_ilumi_spec();
-        float* get_ilumi_shine();
+
 };
 
-class Luas: Astros{
+class Luas: public Astros{
 
     public:
         using Astros::Astros;
     // transladar e rotacionar em reação ao sol
         Luas(inf_astros inf_lua);
-
-        //depois dar overrite no metodo atualiza posicao
-        //
+        //depois dar overrite no metodo atualiza posicao ?
+        void desenhar_Lua();
+        void atualiza_lua(std::vector<GLfloat> astro_ref);
 };
 
 //inspirado no codigo do coutinho KEKW

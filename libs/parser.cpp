@@ -102,7 +102,7 @@ int parse_lua(std::vector<inf_astros> *aux,const char *file_name,int num_luas){
     int i = 0;
     float carry1=0,carry2 = 0;
     std::string input_caminho("assets/texture/");
-
+    printf("nome para a lua = %s \n",file_name);
     file->open(file_name, std::ios::in);
 
     // Verifica se o arquivo está aberto
