@@ -14,8 +14,8 @@ void init_sistemaSolar(){
 
     planetario = new Sistema_solar();
 
-    planetario->criar_sol("sol.txt");
-    planetario->add_planeta("terra.txt");
+    planetario->criar_sol("assets/scripts/Sol.txt");
+    planetario->add_planeta("assets/scripts/Terra.txt");//ao adicionar os planetas automaticamente será adicionado as luas deles
     //adicionar manualmente os planetas KEKW
 }
 
@@ -23,12 +23,12 @@ void drawUpdate()
 {
 
     glClear(GL_COLOR_BUFFER_BIT);
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-
 	glEnable(GL_TEXTURE_2D);
-
+        //desenha tudo em sistema de recurssao
+        planetario->desenhar_sistema();
 	glDisable(GL_TEXTURE_2D);
 
     glutSwapBuffers();
@@ -36,6 +36,10 @@ void drawUpdate()
 
 void onTimeUpdate(int time)
 {
+
+    //sistema sera atualizado
+    planetario->atualiza_sistema();
+
     // Draws everything <3
     glutPostRedisplay();
 
@@ -84,7 +88,7 @@ int main(int argc, char **argv)
     configGlut();
 
     glewInit();
-
+    //inicializa o sistema solar
     init_sistemaSolar();
 
     glutDisplayFunc(drawUpdate);

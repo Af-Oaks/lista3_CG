@@ -10,12 +10,14 @@ int parse_model(inf_astros *aux, const char *file_name,int *num_luas)
     inf_astros luas={0};
     int i = 0;
     float carry1=0,carry2 = 0;
-
     file->open(file_name, std::ios::in);
+    *num_luas=0;
 
     // Verifica se o arquivo está aberto
-    if (!file->is_open())
+    if (!file->is_open()){
+        printf("erro ao abrir|| arquivo aberto? \n");
         goto ERROR;
+        }
 
     // Verifica se o arquivo está vazio
     if (!file->eof())
@@ -28,23 +30,27 @@ int parse_model(inf_astros *aux, const char *file_name,int *num_luas)
             delete file;
             return 1;
         }
-    }
-    else
-        goto ERROR;
-        
 
+    }
+    else{
+        printf("arquivo vazio!\n");
+        goto ERROR;}
+        
+    printf("%s  M01\n",input_str);
     // Lê o modelo do arquivo
     while (file->peek() != EOF)
     {
-        file->getline(input_str, 100, ';');
+        file->getline(input_str, 100);
+        printf("%s  M02\n",input_str);
         sscanf(input_str, "%f,%f,%f,%f,%f", &aux->raio_Astro_ao_sol,&aux->material,&aux->raio_Astro,&carry1,&carry2);
         aux->vec_velo.push_back(carry1);
         aux->vec_velo.push_back(carry2);
-        file->getline(input_str, 100,';');
+        file->getline(input_str, 100);
+        printf("%s  M03\n",input_str);
         sscanf(input_str, "%s", nome_textura);  
         std::string input_caminho("assets/texture/");
         input_caminho.append(input_str);
-
+        printf("name_t = %s\n",input_caminho.c_str());
         // Carrega a textura usando a soil
         GLuint idTextura = SOIL_load_OGL_texture(input_caminho.c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_DDS_LOAD_DIRECT);
 
@@ -59,11 +65,13 @@ int parse_model(inf_astros *aux, const char *file_name,int *num_luas)
         }
         
      //pula para proxima linha que vai ter a quantia de luas
-     file->getline(input_str, 100);
-     sscanf(input_str,"%d",num_luas);
+    file->getline(input_str, 100);
+    printf("%s  M04\n",input_str);
+    sscanf(input_str,"%d",num_luas);
 
     //tenta pegar mais uma linha para ter zerteza que chego no EOF!
     file->getline(input_str, 100);
+    printf("%s  M05\n",input_str);
     
         
     }

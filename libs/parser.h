@@ -1,7 +1,7 @@
 #ifndef __PARSER__
 #define __PARSER__
 
-// #define__DEBUG__
+#define __DEBUG__
 
 #ifdef __DEBUG__
 #include <stdio.h>

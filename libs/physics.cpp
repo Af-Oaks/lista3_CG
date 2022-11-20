@@ -68,7 +68,7 @@ Astros::Astros(const char * script){
     this->vec_velo =aux.vec_velo;
     //      pos_x,                            pos_y,                                 pos_z
     this->vec_pos.push_back(0.0);this->vec_pos.push_back(raio_Astro_ao_sol);this->vec_pos.push_back(0.0);
-
+    printf("num luas %d\n",num_luas);
     if(num_luas!= 0){
         std::vector<informacoes_astros> aux_luas;
         std::string input_caminho ="Luas_";
@@ -100,6 +100,7 @@ Astros::Astros(inf_astros info_astro){
 
 void Astros::atualiza_posicao(){
 
+
 }
 
 void Astros::desenhar_Astro(){
@@ -129,7 +130,7 @@ Sol::Sol(const char * script){
     int num=0;
     if (!parse_model(&aux,script,&num))
     {
-        printf("DEU BOM NO FILE ASTRO \n");
+        printf("DEU BOM NO FILE SOL \n");
     }
     this->codigo_textura =aux.codigo_textura;
     this->material = aux.material;
@@ -143,25 +144,25 @@ Sol::Sol(const char * script){
 void Sol::set_ilumincao(){
     //aumenta luz uniforme
     if(keyboard.z && ilum_uniforme<=1.0)
-        ilum_uniforme+=0.01*(float)keyboard.z;
+        ilum_uniforme+=0.0001*(float)keyboard.z;
     //diminui  luz uniforme
     if(keyboard.x && ilum_uniforme>=0.0)
-        ilum_uniforme-=0.01*(float)keyboard.z;
+        ilum_uniforme-=0.0001*(float)keyboard.z;
    
     //aumenta luz difusa
     if(keyboard.c && ilum_difusa<=1.0)
-        ilum_difusa+=0.01*(float)keyboard.c;
+        ilum_difusa+=0.0001*(float)keyboard.c;
     //diminui  luz difusa
     if(keyboard.v && ilum_difusa>=0.0)
-        ilum_difusa-=0.01*(float)keyboard.v;
+        ilum_difusa-=0.0001*(float)keyboard.v;
 
     //aumenta luz especular
     if(keyboard.b && ilum_especular<=1.0)
-        ilum_especular+=0.01*(float)keyboard.b;
+        ilum_especular+=0.0001*(float)keyboard.b;
 
     //diminui luz especular
     if(keyboard.b && ilum_especular>=0.0)
-        ilum_especular-=0.01*(float)keyboard.n;
+        ilum_especular-=0.0001*(float)keyboard.n;
 }
 void Sol::atualiza_sol(){
 

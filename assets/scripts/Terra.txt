@@ -1,5 +1,5 @@
 ROTEIRO
 35.0,0.5,20.0,3.0,0.5
-earth.png
+earth.jpg
 1
 

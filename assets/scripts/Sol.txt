@@ -1,4 +1,4 @@
 ROTEIRO
 0.0,0.5,100.0,0.0,5.0
-sun.png
+sun.jpg
 0
