@@ -157,7 +157,7 @@ void reshapeFct(int width, int height)
  #ifdef DEBUG
     printf("Reshape Callback [%s] : Width [%d] | Height [%d] \n", __func__, width, height);
  #endif
-
+    /*
     if (width != prev_ww)
     {
         prev_ww = width;
@@ -180,10 +180,11 @@ void reshapeFct(int width, int height)
         else
             reshaping = 0;
     }
-    // Redimensiona o desenho do open_gl
-    // razaoAspecto = (float)glutGet(GLUT_WINDOW_WIDTH) / (float)glutGet(GLUT_WINDOW_HEIGHT);
-
+    */
     glViewport(0, 0, width, height);
+
+    prev_wh=height;
+    prev_ww=width;
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();

@@ -1,5 +1,8 @@
 #include "physics.h"
 
+static long font = (long)GLUT_BITMAP_8_BY_13;   // Fonte usada para imprimir na tela
+static char theStringBuffer[10];                // String buffer
+
 //Classe sistema solar
 //----------------------------------------------------------------------------//
 Sistema_solar::Sistema_solar()
@@ -37,6 +40,21 @@ void Sistema_solar::desenhar_sistema(){
     glEnable(GL_LIGHT0);
     glLoadIdentity();
     //printf("desenho_sts 03?\n");
+    //desenha informações na tela!
+
+    informacoesTela(sol->ilum_variables()[0],sol->ilum_variables()[1], sol->ilum_variables()[2],sol->ilum_variables()[3]);
+
+    // desenhando o background
+    // Desenha a esfera grande e bem arredondada
+    
+    glEnable(GL_TEXTURE_2D);
+    glPushMatrix();
+        glColor3f(1,1,1);
+        glBindTexture(GL_SPHERE_MAP, space_texture);
+        solidSphere_inside(raio_sistema, 160, 160); 
+    glPopMatrix();
+    glDisable(GL_TEXTURE_2D);
+
     // Posiciona a câmera de acordo com posição x,y do mouse na janela
     gluLookAt(1*(xMouse-prev_wh/2)/(prev_ww/16), -1*(yMouse-prev_wh/2)/(prev_ww/16) + 3, 5,
               0, 0, 0,
@@ -51,20 +69,10 @@ void Sistema_solar::desenhar_sistema(){
     glEnable(GL_LIGHTING);
     for(auto  i: planetas){
 
-        i->desenhar_Astro(sol->get_shine());
+        i->desenhar_Astro(sol->ilum_variables()[3]);
         //printf("desenho_sts dentro?\n");
     }
 
-    // desenhando o background
-    // Desenha a esfera grande e bem arredondada
-    glEnable(GL_TEXTURE_2D);
-    glPushMatrix();
-        glLoadIdentity(); 
-        solidSphere_inside(raio_sistema, 160, 160);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, space_texture); 
-        //glColor3f(1,1,1);
-    glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
     //printf("desenho_sts 06?\n");
 
     glDisable(GL_LIGHTING);
@@ -319,7 +327,7 @@ void Sol::set_ilumincao(){
     if(keyboard.a && ilum_shine>0.0)
         ilum_shine-=1.0*(float)keyboard.a;
 
-    printf("amb =%0.1f,Spec =%0.1f, Dif=%0.1f,shine =%0.1f \n",ilum_uniforme,ilum_especular,ilum_difusa,ilum_shine);
+    //printf("amb =%0.1f,Spec =%0.1f, Dif=%0.1f,shine =%0.1f \n",ilum_uniforme,ilum_especular,ilum_difusa,ilum_shine);
 
 
 }
@@ -384,11 +392,21 @@ void Sol::desenhar_sol(){
     glDisable(GL_TEXTURE_2D);
     //glDisable(GL_LIGHT0);
     //printf("errro espehera?2?\n");
+
+    // desenhando as informaçoes na tela
+    
 }
 
-float Sol::get_shine(){
+//vector com ifnormações da ilum nessa ordem ambiente,difusa,especular,shine
+std::vector<float>  Sol::ilum_variables(){
 
-    return ilum_shine;
+    std::vector<float> carry;
+    carry.push_back(ilum_uniforme);
+    carry.push_back(ilum_difusa);
+    carry.push_back(ilum_especular);
+    carry.push_back(ilum_shine);
+
+    return carry;
 }
 //----------------------------------------------------------------------------//
 // funcoes para ajudar a desenhar e afins
@@ -416,7 +434,7 @@ void solidSphere_inside(int radius, int stacks, int columns)
     GLUquadric* quadObj = gluNewQuadric();
     // estilo preenchido... poderia ser GLU_LINE, GLU_SILHOUETTE
     // ou GLU_POINT
-    gluQuadricOrientation(quadObj,GLU_OUTSIDE);
+    gluQuadricOrientation(quadObj,GLU_INSIDE);
     gluQuadricDrawStyle(quadObj, GLU_FILL);
     // chama 01 glNormal para cada vértice.. poderia ser
     // GLU_FLAT (01 por face) ou GLU_NONE
@@ -428,6 +446,56 @@ void solidSphere_inside(int radius, int stacks, int columns)
     // limpa as variáveis que a GLU usou para criar
     // a esfera
     gluDeleteQuadric(quadObj);
+}
+
+// Escreve uma cadeia de caracteres
+void escreveTextoNaTela(void *font, char *string)
+{
+    char *c;
+    for (c = string; *c != '\0'; c++) glutBitmapCharacter(font, *c);
+}
+
+// Converte um número decimal em string
+void floatParaString(char * destStr, int precision, float val)
+{
+    sprintf(destStr,"%f",val);
+    destStr[precision] = '\0';
+}
+
+// Escreve as informações variáveis na tela nessa ordem:ambiente,difusa,especular,shine
+void informacoesTela(float m, float d, float e,float s)
+{
+    glDisable(GL_LIGHTING); // Desabilita iluminação
+    glColor3f(.85f, .85f, .85f);
+
+    floatParaString(theStringBuffer, 4, m);
+    glRasterPos3f(-480*razaoAspecto, 475, -2.0);
+    escreveTextoNaTela((void*)font, (char*)"Luz ambiente global: ");
+    glRasterPos3f(-480*razaoAspecto, 450, -2.0);
+    escreveTextoNaTela((void*)font, (char*)"  - Intensidade (Z/X): ");
+    escreveTextoNaTela((void*)font, theStringBuffer);
+
+    glRasterPos3f(-480*razaoAspecto, 425, -2.0);
+    escreveTextoNaTela((void*)font, (char*)"Luz branca: ");
+    glRasterPos3f(-480*razaoAspecto, 400, -2.0);
+
+    escreveTextoNaTela((void*)font, (char*)"  - Intensidade difusa (C/V): ");
+    floatParaString(theStringBuffer, 4, d);
+    escreveTextoNaTela((void*)font, theStringBuffer);
+
+    glRasterPos3f(-480*razaoAspecto, 375, -2.0);
+    escreveTextoNaTela((void*)font, (char*)"  - Intensidade especular (B/N): ");
+    floatParaString(theStringBuffer, 4, e);
+    escreveTextoNaTela((void*)font, theStringBuffer);
+
+
+    glRasterPos3f(-480*razaoAspecto, 350, -2.0);
+    escreveTextoNaTela((void*)font, (char*)"Material: ");
+    glRasterPos3f(-480*razaoAspecto, 325, -2.0);
+    escreveTextoNaTela((void*)font, (char*)"  - Expoente shineness (W/A): ");
+    floatParaString(theStringBuffer, 5, s);
+    escreveTextoNaTela((void*)font, theStringBuffer);
+
 }
 
 

@@ -109,7 +109,7 @@ class Sol{
         //metodos
         void atualiza_sol();
         void desenhar_sol();
-        float get_shine();
+        std::vector<float> ilum_variables();
 
 };
 
@@ -127,5 +127,10 @@ class Luas: public Astros{
 //inspirado no codigo do coutinho KEKW
 void solidSphere(int radius, int stacks, int columns);
 void solidSphere_inside(int radius, int stacks, int columns);
+//KEKW debug do coutinho
+// Escreve as informações variáveis na tela nessa ordem:ambiente,difusa,especular,shine
+void informacoesTela(float m, float d, float e,float s);
+void escreveTextoNaTela(void *font, char *string);
+void floatParaString(char * destStr, int precision, float val);
 
 #endif
