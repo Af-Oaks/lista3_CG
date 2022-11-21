@@ -63,7 +63,7 @@ class Astros{
         Astros(const char * script);
         Astros(inf_astros info_astro);
         void atualiza_posicao();
-        void desenhar_Astro();
+        void desenhar_Astro(float shine);
     // transladar e rotacionar em reação ao sol
     //atualiza(pos_sol)
         //atualizar a posicao nova em relação ao sol
@@ -88,11 +88,6 @@ class Sol{
         // atributos do planeta
         GLfloat raio_Astro;
         GLfloat material;
-        // Propriedades do material da esfera
-        float *matAmb;   // cor ambiente
-        float *matDif;    // cor difusa
-        float *matSpec;   // cor especular
-        float *matshine; // shineeeee
         GLfloat ilum_uniforme;
         GLfloat ilum_difusa;
         GLfloat ilum_especular;
@@ -114,6 +109,7 @@ class Sol{
         //metodos
         void atualiza_sol();
         void desenhar_sol();
+        float get_shine();
 
 };
 
@@ -124,7 +120,7 @@ class Luas: public Astros{
     // transladar e rotacionar em reação ao sol
         Luas(inf_astros inf_lua);
         //depois dar overrite no metodo atualiza posicao ?
-        void desenhar_Lua();
+        void desenhar_Lua(float shine);
         void atualiza_lua(std::vector<GLfloat> astro_ref);
 };
 

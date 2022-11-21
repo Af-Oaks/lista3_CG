@@ -13,14 +13,6 @@ Sistema_solar::Sistema_solar()
     raio_sistema = 1500.0;
 
     // paramentros de inicialização do desenho
-    float globAmb[] = { 0.2, 0.2, 0.2, 1.0 };
-    //printf("desenho_sts 01?\n");
-    //printf("desenho_sts 02?\n");
-    //configura sistema de luz global//ver se da para fazer apenas uma vez
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globAmb);        // Luz ambiente global
-    glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);  
-    glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, false); // habilita local view
-    glEnable(GL_COLOR_MATERIAL); 
 
 };
 
@@ -40,10 +32,9 @@ void Sistema_solar::atualiza_sistema(){
 //chama todo mundo dos vetores e o sol para ser desenhada na tela
 void Sistema_solar::desenhar_sistema(){
 
-
     // Limpa a tela e o z-buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+    glEnable(GL_LIGHT0);
     glLoadIdentity();
     //printf("desenho_sts 03?\n");
     // Posiciona a câmera de acordo com posição x,y do mouse na janela
@@ -53,19 +44,16 @@ void Sistema_solar::desenhar_sistema(){
 
     //agora desenhar os pontos de luzes
     //printf("desenho_sts 04?\n");
-    glEnable(GL_LIGHT0);
     this->sol->desenhar_sol();
-    glEnable(GL_LIGHTING);
+
     // Desabilita iluminação para desenhar os planetas(nao emitem luz!)
     //printf("desenho_sts 05?\n");
-
-
+    glEnable(GL_LIGHTING);
     for(auto  i: planetas){
 
-        i->desenhar_Astro();
+        i->desenhar_Astro(sol->get_shine());
         //printf("desenho_sts dentro?\n");
     }
-    glDisable(GL_LIGHTING);
 
     // desenhando o background
     // Desenha a esfera grande e bem arredondada
@@ -73,12 +61,13 @@ void Sistema_solar::desenhar_sistema(){
     glPushMatrix();
         glLoadIdentity(); 
         solidSphere_inside(raio_sistema, 160, 160);
-        glBindTexture(GL_TEXTURE_2D, space_texture); 
-        glColor3f(1,1,1);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, space_texture); 
+        //glColor3f(1,1,1);
     glPopMatrix();
     glDisable(GL_TEXTURE_2D);
     //printf("desenho_sts 06?\n");
 
+    glDisable(GL_LIGHTING);
 
 }
 
@@ -154,12 +143,12 @@ Astros::Astros(inf_astros info_astro){
 void Astros::atualiza_posicao(){
 
     if(vec_angulo[1]<360.0)// rotação em torno do seu proprio eixo
-        vec_angulo[1]+=0.8;
+        vec_angulo[1]+=0.4;
     else
         vec_angulo[1]=0.0;
 
     if(vec_angulo[0]<360.0)//rotação em relação ao seu astro
-        vec_angulo[0]+=0.05;
+        vec_angulo[0]+=0.02;
     else
         vec_angulo[0]=0.0;
 
@@ -177,11 +166,13 @@ void Astros::atualiza_posicao(){
 
 }
 
-void Astros::desenhar_Astro(){
+void Astros::desenhar_Astro(float shine){
 
 
-    // calma 1
-    glMaterialfv(GL_FRONT, GL_SHININESS, &material);
+    //glColor3f(1, 1, 1);// color dnv coutinho??
+    float mat_aux[] = {shine};
+    // Definindo as propriedades do material
+    glMaterialfv(GL_FRONT, GL_SHININESS, mat_aux);
     //glColor3f(1, 1, 1);// color dnv coutinho??
 
     // Desenha a esfera grande e bem arredondada
@@ -202,7 +193,7 @@ void Astros::desenhar_Astro(){
     
     for(auto i : luas){
 
-        i->desenhar_Lua();
+        i->desenhar_Lua(shine);
     }
     
 }
@@ -215,10 +206,13 @@ Luas::Luas(inf_astros inf_lua) :Astros(inf_lua){
 
 }
 
-void Luas::desenhar_Lua(){
+void Luas::desenhar_Lua(float shine){
 
-    glMaterialfv(GL_FRONT, GL_SHININESS, &material);
     //glColor3f(1, 1, 1);// color dnv coutinho??
+    float mat_aux[] = {shine};
+
+    // Definindo as propriedades do material
+    glMaterialfv(GL_FRONT, GL_SHININESS, mat_aux);
 
     // Desenha a esfera grande e bem arredondada
     glEnable(GL_TEXTURE_2D);
@@ -239,12 +233,12 @@ void Luas::desenhar_Lua(){
 void Luas::atualiza_lua(std::vector<GLfloat> astro_ref){
 
     if(vec_angulo[1]<360.0)//rotacao no proprio eixo
-        vec_angulo[1]+=0.8;
+        vec_angulo[1]+=0.5;
     else
         vec_angulo[1]=0.0;
 
     if(vec_angulo[0]<360.0)//rotacao em relação ao seu astro
-        vec_angulo[0]+=0.06;
+        vec_angulo[0]+=0.03;
     else
         vec_angulo[0]=0.0;
 
@@ -261,32 +255,22 @@ Sol::Sol(const char * script){
 
     ilum_difusa=1.0;
     ilum_especular=1.0;
-    ilum_shine=30.0;
-    ilum_uniforme=1.0;
+    ilum_shine=50.0;
+    ilum_uniforme=0.0;
     // Propriedades do material da esfera
     float carryAmb[] = {1.0, 1.0, 1.0, ilum_uniforme};    // cor ambiente : amarela
     float carrySpec[]= { 1.0, 1.0, 1.0,  ilum_especular }; //cor difusa: amarela
     float carryDif[] = {1.0, 1.0, 1.0, ilum_difusa};       // cor especular: amarela
     float carryshine[] = { ilum_shine }; 
 
-    matAmb = carryAmb;  // jogando para dentro do array do sol
-    matSpec = carrySpec; // jogando para dentro do array do sol
-    matDif =  carryDif;  // jogando para dentro do array do sol
-    matshine =  carryshine;  // jogando para dentro do array do sol
-
     // Propriedades da fonte de luz LIGHT0
-    glLightfv(GL_LIGHT0, GL_AMBIENT, matAmb);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, matDif);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, matSpec);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, carryAmb);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, carryDif);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, carrySpec);
+    glLightfv(GL_LIGHT0, GL_SHININESS, carryshine);
 
-    // Definindo as propriedades do material
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, matDif);
-    glMaterialfv(GL_FRONT, GL_AMBIENT, matAmb);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, matSpec);
-    glMaterialfv(GL_FRONT, GL_SHININESS, matshine);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
    //struct de informações para carregar os atributos do Astro
     inf_astros aux={0};
     int num=0;
@@ -335,18 +319,6 @@ void Sol::set_ilumincao(){
     if(keyboard.a && ilum_shine>0.0)
         ilum_shine-=1.0*(float)keyboard.a;
 
-
-    // Propriedades do material da esfera
-    float carryAmb[] = {1.0, 1.0, 1.0, ilum_uniforme};    // cor ambiente : amarela
-    float carrySpec[]= { 1.0, 1.0, 1.0,  ilum_especular }; //cor difusa: amarela
-    float carryDif[] = {1.0, 1.0, 1.0, ilum_difusa};       // cor especular: amarela
-    float carryshine[] = { ilum_shine }; 
-
-    matAmb = carryAmb;  // jogando para dentro do array do sol
-    matSpec = carrySpec; // jogando para dentro do array do sol
-    matDif =  carryDif;  // jogando para dentro do array do sol
-    matshine =  carryshine;  // jogando para dentro do array do sol
-
     printf("amb =%0.1f,Spec =%0.1f, Dif=%0.1f,shine =%0.1f \n",ilum_uniforme,ilum_especular,ilum_difusa,ilum_shine);
 
 
@@ -373,11 +345,17 @@ void Sol::desenhar_sol(){
     //botando iluminação
     //printf("errro luza?\n");
     // Propriedades da fonte de luz LIGHT0
-
+    glEnable(GL_LIGHT0);
     // O ERRRO TA EM UMA DESSAS 3 CORDENADAS
-    glLightfv(GL_LIGHT0, GL_AMBIENT, matAmb);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, matDif);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, matSpec);
+
+    // Propriedades do material da esfera
+    float carryAmb[] = {ilum_uniforme,ilum_uniforme,ilum_uniforme,1.0};    // cor ambiente : amarela
+    float carrySpec[]= {ilum_especular,ilum_especular,ilum_especular, 1.0 }; //cor difusa: amarela
+    float carryDif[] = {ilum_difusa,ilum_difusa,ilum_difusa,1.0};       // cor especular: amarela
+    
+    glLightfv(GL_LIGHT0, GL_AMBIENT, carryAmb);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, carryDif);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, carrySpec);
     //printf("errro luzb?\n");
     //printf("errro luzc?\n");
     glPushMatrix();
@@ -388,7 +366,7 @@ void Sol::desenhar_sol(){
         glLightfv(GL_LIGHT0, GL_POSITION, vec_pos.data());
         //printf("errro luz1?\n");
         glTranslatef(vec_pos[0], vec_pos[1], vec_pos[2]);
-        glColor3f(1.0, 1.0, 1.0); // coutinho???? usar color??? para luz???
+        //glColor3f(1.0, 1.0, 1.0); // coutinho???? usar color??? para luz???
     glPopMatrix();
     
     //desenhando a esfera
@@ -408,6 +386,10 @@ void Sol::desenhar_sol(){
     //printf("errro espehera?2?\n");
 }
 
+float Sol::get_shine(){
+
+    return ilum_shine;
+}
 //----------------------------------------------------------------------------//
 // funcoes para ajudar a desenhar e afins
 void solidSphere(int radius, int stacks, int columns)
