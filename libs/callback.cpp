@@ -192,7 +192,8 @@ void reshapeFct(int width, int height)
     max_x = 500 * razaoAspecto;
     max_y = 500;
 
-    glOrtho(-max_x, max_x, -max_y, max_y, -500, 500);
+    // glOrtho(-max_x, max_x, -max_y, max_y, -500, 500);
+    glFrustum( -razaoAspecto,razaoAspecto,-1,1,1,2300);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }

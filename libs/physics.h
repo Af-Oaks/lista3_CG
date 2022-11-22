@@ -15,6 +15,15 @@ class Luas;
 class Sistema_solar;
 class Sol;
 
+
+typedef struct movee{
+
+    float x;
+    float y;
+    float z;
+
+} move;
+
 class Sistema_solar
 { 
     private:
@@ -132,5 +141,7 @@ void solidSphere_inside(int radius, int stacks, int columns);
 void informacoesTela(float m, float d, float e,float s);
 void escreveTextoNaTela(void *font, char *string);
 void floatParaString(char * destStr, int precision, float val);
+void setupCamera(move focus,move midPoint);
+void movet(move focus,move midPoint);
 
 #endif

@@ -80,8 +80,9 @@ void configGlut()
 
 
     // Não mostrar faces do lado de dentro
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    // glEnable(GL_CULL_FACE);
+    // glCullFace(GL_FRONT);
+    glDisable(GL_CULL_FACE);
 
     // Esconder o ponteiro do mouse quando dentro da janela
     glutSetCursor(GLUT_CURSOR_NONE);

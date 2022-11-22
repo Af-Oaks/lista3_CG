@@ -8,7 +8,7 @@ static char theStringBuffer[10];                // String buffer
 Sistema_solar::Sistema_solar()
 { 
     float time =0.0;
-    space_texture = SOIL_load_OGL_texture("assets/texture/stars_milky_way.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_DDS_LOAD_DIRECT);
+    space_texture = SOIL_load_OGL_texture("assets/texture/stars_milky_way.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_INVERT_Y);
     if (space_texture == 0)
     {
         printf("Erro do SOIL space_texture: '%s'\n", SOIL_last_result());
@@ -42,23 +42,21 @@ void Sistema_solar::desenhar_sistema(){
     //printf("desenho_sts 03?\n");
     //desenha informações na tela!
 
-    informacoesTela(sol->ilum_variables()[0],sol->ilum_variables()[1], sol->ilum_variables()[2],sol->ilum_variables()[3]);
-
     // desenhando o background
     // Desenha a esfera grande e bem arredondada
-    
-    glEnable(GL_TEXTURE_2D);
-    glPushMatrix();
-        glColor3f(1,1,1);
-        glBindTexture(GL_SPHERE_MAP, space_texture);
-        solidSphere_inside(raio_sistema, 160, 160); 
-    glPopMatrix();
-    glDisable(GL_TEXTURE_2D);
-
-    // Posiciona a câmera de acordo com posição x,y do mouse na janela
-    gluLookAt(1*(xMouse-prev_wh/2)/(prev_ww/16), -1*(yMouse-prev_wh/2)/(prev_ww/16) + 3, 5,
+    // Posiciona a câmera de acordo com posição x,y do mouse na janela  
+    //informacoesTela(sol->ilum_variables()[0],sol->ilum_variables()[1], sol->ilum_variables()[2],sol->ilum_variables()[3]);   
+    gluLookAt(500, 500, 5,
               0, 0, 0,
               0, 1, 0);
+    informacoesTela(sol->ilum_variables()[0],sol->ilum_variables()[1], sol->ilum_variables()[2],sol->ilum_variables()[3]);   
+
+    glPushMatrix();
+    glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, space_texture);
+        solidSphere_inside(raio_sistema, 160, 160); 
+    glDisable(GL_TEXTURE_2D);
+    glPopMatrix();
 
     //agora desenhar os pontos de luzes
     //printf("desenho_sts 04?\n");
@@ -76,6 +74,7 @@ void Sistema_solar::desenhar_sistema(){
     //printf("desenho_sts 06?\n");
 
     glDisable(GL_LIGHTING);
+
 
 }
 
@@ -434,7 +433,7 @@ void solidSphere_inside(int radius, int stacks, int columns)
     GLUquadric* quadObj = gluNewQuadric();
     // estilo preenchido... poderia ser GLU_LINE, GLU_SILHOUETTE
     // ou GLU_POINT
-    gluQuadricOrientation(quadObj,GLU_INSIDE);
+    //gluQuadricOrientation(quadObj,GLU_INSIDE);
     gluQuadricDrawStyle(quadObj, GLU_FILL);
     // chama 01 glNormal para cada vértice.. poderia ser
     // GLU_FLAT (01 por face) ou GLU_NONE
@@ -446,6 +445,7 @@ void solidSphere_inside(int radius, int stacks, int columns)
     // limpa as variáveis que a GLU usou para criar
     // a esfera
     gluDeleteQuadric(quadObj);
+
 }
 
 // Escreve uma cadeia de caracteres
@@ -466,36 +466,32 @@ void floatParaString(char * destStr, int precision, float val)
 void informacoesTela(float m, float d, float e,float s)
 {
     glDisable(GL_LIGHTING); // Desabilita iluminação
-    glColor3f(.85f, .85f, .85f);
 
     floatParaString(theStringBuffer, 4, m);
-    glRasterPos3f(-480*razaoAspecto, 475, -2.0);
+    glRasterPos3f(-300*razaoAspecto, 475, 850.0);
     escreveTextoNaTela((void*)font, (char*)"Luz ambiente global: ");
-    glRasterPos3f(-480*razaoAspecto, 450, -2.0);
+    glRasterPos3f(-275*razaoAspecto, 450, 825.0);
     escreveTextoNaTela((void*)font, (char*)"  - Intensidade (Z/X): ");
     escreveTextoNaTela((void*)font, theStringBuffer);
 
-    glRasterPos3f(-480*razaoAspecto, 425, -2.0);
+    glRasterPos3f(-250*razaoAspecto, 425, 800.0);
     escreveTextoNaTela((void*)font, (char*)"Luz branca: ");
-    glRasterPos3f(-480*razaoAspecto, 400, -2.0);
+    glRasterPos3f(-225*razaoAspecto, 400, 750.0);
 
     escreveTextoNaTela((void*)font, (char*)"  - Intensidade difusa (C/V): ");
     floatParaString(theStringBuffer, 4, d);
     escreveTextoNaTela((void*)font, theStringBuffer);
 
-    glRasterPos3f(-480*razaoAspecto, 375, -2.0);
+    glRasterPos3f(-200*razaoAspecto, 375, 750.0);
     escreveTextoNaTela((void*)font, (char*)"  - Intensidade especular (B/N): ");
     floatParaString(theStringBuffer, 4, e);
     escreveTextoNaTela((void*)font, theStringBuffer);
 
-
-    glRasterPos3f(-480*razaoAspecto, 350, -2.0);
+    glRasterPos3f(-175*razaoAspecto, 350, 750.0);
     escreveTextoNaTela((void*)font, (char*)"Material: ");
-    glRasterPos3f(-480*razaoAspecto, 325, -2.0);
+    glRasterPos3f(-150*razaoAspecto, 325, 750.0);
     escreveTextoNaTela((void*)font, (char*)"  - Expoente shineness (W/A): ");
     floatParaString(theStringBuffer, 5, s);
     escreveTextoNaTela((void*)font, theStringBuffer);
 
 }
-
-
