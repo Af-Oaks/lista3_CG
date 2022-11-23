@@ -1,6 +1,7 @@
 #include "callback.h"
 
-float razaoAspecto = 16.0f / 9.0f, prev_wh, prev_ww,xMouse=112,yMouse=112;
+float razaoAspecto = 16.0f / 9.0f, prev_wh, prev_ww;
+int xMouse=112,yMouse=112;
 float max_x = 0, max_y = 0;
 
 keyboard_t keyboard = {0};
@@ -14,7 +15,10 @@ void keyboardFct(unsigned char key, int x, int y)
 
     switch (key)
     {
-
+    //tecla esc sair do jogo
+    case 27:
+        exit(0);
+    //tecla enter
     case 13:
         if (keyboard.enter)
             keyboard.enter = 0;
@@ -146,9 +150,19 @@ void keyboardSpecial(int key, int x, int y)
 
 static bool reshaping = 0;
 
+//cria um vetor usando o centro da tela como referencia
 void posicionaCamera(int x, int y) {
-    xMouse = x;
-    yMouse = y;
+
+    //logica seria de posicionar o mouse com o vetor em relação a origen(centro da tela)
+    //mudar a posição relacionado a esse callback1
+    //na proxima callback2 resetar manualmente a posicao do mouse para nao fica infinitamente girando
+    // e repetir esse ciclo!
+
+    xMouse=x;
+    yMouse=y;
+
+    //printf("posicao mouse x =%d y= %d \n",xMouse,yMouse);
+    //printf("prev_ww =%0.1f prev_wh= %0.1f\n",prev_ww,prev_wh);
 }
 
 // Callback para redimensionamento

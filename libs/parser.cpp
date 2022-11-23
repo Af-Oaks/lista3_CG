@@ -48,21 +48,10 @@ int parse_model(inf_astros *aux, const char *file_name,int *num_luas)
         file->getline(input_str, 100);
         //printf("%s  M03\n",input_str);
         sscanf(input_str, "%s", nome_textura);  
-        std::string input_caminho("assets/texture/");
+        std::string input_caminho("");
         input_caminho.append(input_str);
-        //printf("name_t = %s\n",input_caminho.c_str());
-        // Carrega a textura usando a soil
-        GLuint idTextura = SOIL_load_OGL_texture(input_caminho.c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_DDS_LOAD_DIRECT);
-
-        // Verifica se ocorreu algum erro na SOIL
-        if (idTextura == 0)
-        {
-            printf("Erro do SOIL: '%s'\n", SOIL_last_result());
-            return 1;
-        }
-        else{
-            aux->codigo_textura = idTextura;
-        }
+        aux->nome_textura = input_caminho;
+        printf("texture = %s \n",input_caminho.c_str());
         
      //pula para proxima linha que vai ter a quantia de luas
     file->getline(input_str, 100);
@@ -102,7 +91,7 @@ int parse_lua(std::vector<inf_astros> *aux,const char *file_name,int num_luas){
     int i = 0;
     float carry1=0,carry2 = 0;
     std::string input_caminho("assets/texture/");
-    printf("nome para a lua = %s \n",file_name);
+    //printf("nome para a lua = %s \n",file_name);
     file->open(file_name, std::ios::in);
 
     // Verifica se o arquivo está aberto
@@ -135,26 +124,10 @@ int parse_lua(std::vector<inf_astros> *aux,const char *file_name,int num_luas){
         file->getline(input_str, 100);
         sscanf(input_str, "%s", nome_textura);  
         input_caminho.clear();
-        input_caminho.append("assets/texture/");
         input_caminho.append(input_str);
         printf("name_t = %s\n",input_caminho.c_str());
-
-        // Carrega a textura usando a soil
-        GLuint idTextura = SOIL_load_OGL_texture(input_caminho.c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_DDS_LOAD_DIRECT);
-
-        // Verifica se ocorreu algum erro na SOIL
-        if (idTextura == 0)
-        {
-            printf("Erro do SOIL: '%s'\n", SOIL_last_result());
-            return 1;
-        }
-        else{
-            luas.codigo_textura = idTextura;
-        }
-
-        printf("errro pushback?\n");
+        luas.nome_textura = input_caminho;
         aux->push_back(luas);
-        printf("errro pushback2?\n");
     }   
 
     #if DEBUG
@@ -170,4 +143,73 @@ ERROR:
     delete file;
 
     return 0;
+}
+
+
+int parse_texture(std::vector<std::pair<std::string,GLint>> *aux,const char *file_name){
+
+
+    char *input_str = (char *)malloc(sizeof(char) * 200);
+    char *nome_textura = (char *)malloc(sizeof(char) * 200);
+    std::ifstream *file = new std::ifstream();
+    GLuint idTextura;
+
+    float carry1=0,carry2 = 0;
+    std::string input_caminho("assets/texture/");
+    //printf("nome para a lua = %s \n",file_name);
+    file->open(file_name, std::ios::in);
+
+    // Verifica se o arquivo está aberto
+    if (!file->is_open())
+        goto ERROR;
+
+    // Verifica se o arquivo está vazio
+    if (!file->eof())
+    {
+    // Lê o modelo do arquivo
+    while(file->peek() != EOF)
+    {
+
+        file->getline(input_str, 100);
+        sscanf(input_str, "%s", nome_textura);  
+        input_caminho.clear();
+        input_caminho.append("assets/texture/");
+        input_caminho.append(input_str);
+        printf("carregando texturas = %s\n",input_caminho.c_str());
+
+        // Carrega a textura usando a soil
+        idTextura = SOIL_load_OGL_texture(input_caminho.c_str(), SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_DDS_LOAD_DIRECT);
+        aux->push_back(std::make_pair(input_str,idTextura));
+        // Verifica se ocorreu algum erro na SOIL
+        if (idTextura == 0)
+        {
+            printf("Erro do SOIL: '%s'\n", SOIL_last_result());
+            return 1;
+        }
+        else{
+            aux->push_back(std::make_pair(input_str,idTextura));
+        }
+
+    }   
+
+
+    }
+    else
+        goto ERROR;
+
+
+    #if DEBUG
+    for (auto i : *target)
+    {
+        printf("wave[] id=%d : x=%f, y=%f, time=%f \n", i.id_enemy, i.x, i.y, i.time);
+    }
+    #endif
+
+    // Label para limpar a memória
+ERROR:
+    delete input_str;
+    delete file;
+
+    return 0;
+
 }

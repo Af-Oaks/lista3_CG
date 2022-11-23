@@ -13,6 +13,7 @@ Sistema_solar *planetario;
 void init_sistemaSolar(){
 
     planetario = new Sistema_solar();
+    planetario->carregar_texture();
 
     planetario->criar_sol("assets/scripts/Sol.txt");
     planetario->add_planeta("assets/scripts/Terra.txt");//ao adicionar os planetas automaticamente será adicionado as luas deles

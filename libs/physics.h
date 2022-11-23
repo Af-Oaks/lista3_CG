@@ -8,12 +8,8 @@
 #include <GL/freeglut.h>
 #include "callback.h"
 #include "parser.h"
-
-
-class Astros;
-class Luas;
-class Sistema_solar;
-class Sol;
+#include "Astros.h"
+#include "Sol.h"
 
 
 typedef struct movee{
@@ -33,6 +29,8 @@ class Sistema_solar
         float time;
         GLint space_texture;
         GLfloat raio_sistema;
+        GLuint n_callist;
+        std::vector<std::pair<std::string,GLint>> vec_texture;
 
     public:
         //construtor
@@ -44,94 +42,10 @@ class Sistema_solar
         void ctrl_ilum_sol();
         void add_planeta(const char * nome);
         void criar_sol(const char * nome);
+        void carregar_texture();
 
 };
 
-class Astros{
-
-    protected:
-        // atributos do planeta
-        GLfloat raio_Astro;
-        GLfloat raio_Astro_ao_sol;
-        GLfloat material;
-        GLint codigo_textura;
-        int num_luas;
-        //atributos em relação a translacao e rotacao do planeta
-        // pos0=x||pos1=y||posz=2
-        std::vector<GLfloat> vec_pos;
-        //pos0=velocidade translacao||pos1=velocidade rotacao
-        std::vector<GLfloat> vec_velo;
-        //pos0=theta(x,y)||pos1=fi(z,(xy))
-        std::vector<GLfloat> vec_angulo;
-        std::vector<std::shared_ptr<Luas>> luas;
-
-
-    public:
-        std::vector<GLfloat> get_posicao();
-        //construtor
-        Astros(const char * script);
-        Astros(inf_astros info_astro);
-        void atualiza_posicao();
-        void desenhar_Astro(float shine);
-    // transladar e rotacionar em reação ao sol
-    //atualiza(pos_sol)
-        //atualizar a posicao nova em relação ao sol
-
-    //atualiza luas(pos_do_planeta)
-        // ORDEM DE FAZER ATUALIZAÇÃO
-        // transladar o planeta em relação ao sol
-        // rotacionar o planeta;
-        //passar posição nova do planeta para as luas;
-        //transladar a lua para a nova posição do planeta(corrigir a posição)
-        // agora transladar em relação ao planeta
-        //rotacionar a lua 
-
-
-
-};
-
-
-class Sol{
-
-    private:
-        // atributos do planeta
-        GLfloat raio_Astro;
-        GLfloat material;
-        GLfloat ilum_uniforme;
-        GLfloat ilum_difusa;
-        GLfloat ilum_especular;
-        GLfloat ilum_shine;
-        GLint codigo_textura;
-        //atributos em relação a translacao e rotacao do planeta
-        // pos0=x||pos1=y||posz=2
-        std::vector<GLfloat> vec_pos;
-        //pos0=velocidade translacao||pos1=velocidade rotacao
-        std::vector<GLfloat> vec_velo;
-        //pos0=theta(x,y)||pos1=fi(z,(xy))
-        std::vector<GLfloat> vec_angulo;
-
-    public:
-        std::vector<GLfloat> get_posicao();
-        void set_ilumincao();
-        //construtor
-        Sol(const char * script);
-        //metodos
-        void atualiza_sol();
-        void desenhar_sol();
-        std::vector<float> ilum_variables();
-
-};
-
-class Luas: public Astros{
-
-    public:
-        using Astros::Astros;
-    // transladar e rotacionar em reação ao sol
-        Luas(inf_astros inf_lua);
-        //depois dar overrite no metodo atualiza posicao ?
-        void desenhar_Lua(float shine);
-        void atualiza_lua(std::vector<GLfloat> astro_ref);
-};
 
 //inspirado no codigo do coutinho KEKW
 void solidSphere(int radius, int stacks, int columns);
